@@ -1,0 +1,60 @@
+Some sketchy notes on Korma
+
+------------------------------------
+You need a config file in the target repo:  korma_config.yml
+
+It looks like this:
+
+
+    title: Ruby Best Practices
+    domain: blog.rubybestpractices.com
+    description: Increase your productivity -- Write Better Code
+    authors:
+      gregory: Gregory Brown
+      JEG2: James Edward Gray II
+      jia: Jia Wu
+      jamesbritt: James Britt
+      laktek: Lakshan Perera
+      rklemme: Robert Klemme
+
+
+It's yaml, of course.  
+
+
+------------------------------------
+You will not see an 'about' file for an author until that author has at least one post.
+
+
+------------------------------------
+You have to commit your changes to the target repo for Korma to see them.
+
+
+------------------------------------
+For a live site you may want to have a post-commit hook call into your instance of Korma to regenerate the pages
+
+For example:
+
+
+  #!/bin/sh
+  #
+  # An example hook script that is called after a successful
+  # commit is made.
+  #
+  # To enable this hook, make this file executable.
+
+  /usr/local/bin/ruby /home/james/data/vendor/korma/korma.rb /home/james/data/vendor/jgb-rbp-blog /home/james/data/vendor/korma/www
+
+
+Be sure to make it executable!
+
+   chmod +x .git/hooks/post-commit
+
+
+------------------------------------
+
+korma.rb takes two arguements. THe first is required; it is the path to the git repo with your blog content.
+
+The second is the output directory.  You can omit this, and Korma will default to 'www'. But know that this is relative;
+if you are not careful you may end up with 'www/' in the blog repo.  (But maybe this is what you want.)
+
+
