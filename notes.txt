@@ -52,9 +52,16 @@ Be sure to make it executable!
 
 ------------------------------------
 
-korma.rb takes two arguements. THe first is required; it is the path to the git repo with your blog content.
+korma.rb takes two arguments. THe first is required; it is the path to the git repo with your blog content.
 
 The second is the output directory.  You can omit this, and Korma will default to 'www'. But know that this is relative;
 if you are not careful you may end up with 'www/' in the blog repo.  (But maybe this is what you want.)
+
+-------------------------------------
+
+The bulk of the work is done via Grit, which finds the stuff we care about and hands it off for rendering.
+
+A key Grit method is '/', which does a search for a given item, and returns either the item (if it refers to
+a file) or  "blob" (if the results are a directory).
 
 

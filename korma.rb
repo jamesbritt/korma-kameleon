@@ -40,10 +40,14 @@ module Korma
     end
 
     extend self 
-    attr_accessor :repository, :author_names,  :www_dir, :title, :domain, :description
+    attr_accessor :repository, :author_names,  :www_dir, :title, :domain, :description, :default_view_engine
 
     def normalize_path(path)
       path.gsub(%r{/+},"/")
+    end
+
+    def renderer
+        Korma::Blog.default_view_engine || :haml
     end
     
     def parse_entry(entry)
@@ -79,18 +83,22 @@ module Korma
     def author_index(author)
       @author  = author
       @entries = entries_for_author(author).sort { |a,b| b.published_date <=> a.published_date }
-      haml :author_index
+      render :author_index
     end
 
     def site_index
       @entries = Korma::Blog.all_entries
-      haml :index
+      render :index
     end
 
     def bio(author)
       node = (Korma::Blog.repository.tree / "about/#{author}")
-
       layout { RedCloth.new(node.data).to_html }
+    end
+
+
+    def render file
+      send renderer, file
     end
 
     def update_stylesheet
@@ -130,7 +138,7 @@ module Korma
         entries_for_author(author).each do |e|
           @post = e
           @contents = RedCloth.new(e.entry).to_html
-          write "posts/#{author}/#{e.filename}", haml(:post)
+          write "posts/#{author}/#{e.filename}",  render(:post)       #haml(:post)
         end
         write "about/#{author}.html", bio(author)
       end
@@ -139,6 +147,12 @@ module Korma
 
     def write(file, contents)
       File.open(file, "w") { |f| f << contents }
+    end
+
+    def rhtml file
+      warn "rhtml #{file}"
+      
+     layout { ERB.new(File.read("#{KORMA_DIR}/views/#{file}.rhtml")).result(binding) }
     end
 
     def haml(file)
@@ -180,5 +194,8 @@ Korma::Blog.title  = config['title']
 Korma::Blog.domain = config['domain']
 Korma::Blog.description = config['description']
 Korma::Blog.author_names = config['authors']
+Korma::Blog.default_view_engine = config['default_view_engine'] || :haml
+warn "Korma::Blog.default_view_engine = #{Korma::Blog.default_view_engine}"
 Korma::Blog.www_dir  = ARGV[1] || "www"
 Korma::Blog.generate_static_files
+
